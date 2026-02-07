@@ -1,0 +1,115 @@
+1. Update system
+sudo apt update && sudo apt upgrade -y
+
+2. Install Java (MANDATORY)
+
+Nexus requires Java 8 or 11. Use Java 11.
+
+sudo apt install openjdk-11-jdk -y
+
+
+Verify:
+
+java -version
+
+
+If Java isn’t installed correctly, stop here. Nexus won’t run.
+
+3. Create Nexus user (DO NOT RUN AS ROOT)
+sudo adduser nexus
+
+4. Download Nexus
+cd /opt
+sudo wget https://download.sonatype.com/nexus/3/nexus-3-latest-unix.tar.gz
+
+5. Extract Nexus
+sudo tar -xvf nexus-3-latest-unix.tar.gz
+
+
+Rename for simplicity:
+
+sudo mv nexus-3* nexus
+
+
+Create data directory:
+
+sudo mkdir sonatype-work
+
+6. Set ownership
+sudo chown -R nexus:nexus /opt/nexus
+sudo chown -R nexus:nexus /opt/sonatype-work
+
+7. Configure Nexus to run as nexus user
+
+Edit file:
+
+sudo nano /opt/nexus/bin/nexus.rc
+
+
+Add / change:
+
+run_as_user="nexus"
+
+
+Save and exit.
+
+8. Create systemd service
+sudo nano /etc/systemd/system/nexus.service
+
+
+Paste exactly this:
+
+[Unit]
+Description=Nexus Repository Manager
+After=network.target
+
+[Service]
+Type=forking
+LimitNOFILE=65536
+ExecStart=/opt/nexus/bin/nexus start
+ExecStop=/opt/nexus/bin/nexus stop
+User=nexus
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
+
+
+Save.
+
+9. Reload & start Nexus
+sudo systemctl daemon-reload
+sudo systemctl enable nexus
+sudo systemctl start nexus
+
+
+Check status:
+
+sudo systemctl status nexus
+
+
+If it’s not ACTIVE, don’t proceed. Fix errors first.
+
+10. Open firewall (if enabled)
+sudo ufw allow 8081
+
+11. Access Nexus
+
+Open browser:
+
+http://<SERVER-IP>:8081
+
+
+Example:
+
+http://54.xx.xx.xx:8081
+
+12. Get admin password
+cat /opt/sonatype-work/nexus3/admin.password
+
+
+Login:
+
+Username: admin
+
+Password: from above command
