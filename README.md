@@ -17,7 +17,7 @@ npm packages, and Helm charts.
 - Tool: Nexus Repository Manager 3
 
 ## Installation
-(Commands go here in table format)
+(check Commands file)
 
 ## Access
 - URL: `http://<server-ip>:8081`
